@@ -1,1 +1,6 @@
-.env
+project/ecohome_starter/.env
+venv
+
+__pycache__
+
+mlruns
