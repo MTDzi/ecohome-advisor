@@ -1,4 +1,5 @@
 project/ecohome_starter/.env
+project/venv/
 venv
 
 __pycache__
