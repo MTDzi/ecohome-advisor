@@ -2,10 +2,10 @@
 Tools for EcoHome Energy Advisor Agent
 """
 import os
-import json
-import random
 from datetime import datetime, timedelta
 from typing import Dict, Any
+from pathlib import Path
+
 from langchain_core.tools import tool
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
@@ -13,8 +13,10 @@ from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from models.energy import DatabaseManager
 
+
 # Initialize database manager
-db_manager = DatabaseManager()
+DB_MANAGER = DatabaseManager()
+
 
 # TODO: Implement get_weather_forecast tool
 @tool
@@ -109,7 +111,7 @@ def query_energy_usage(start_date: str, end_date: str, device_type: str = None) 
         start_dt = datetime.strptime(start_date, "%Y-%m-%d")
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
         
-        records = db_manager.get_usage_by_date_range(start_dt, end_dt)
+        records = DB_MANAGER.get_usage_by_date_range(start_dt, end_dt)
         
         if device_type:
             records = [r for r in records if r.device_type == device_type]
@@ -153,7 +155,7 @@ def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
         start_dt = datetime.strptime(start_date, "%Y-%m-%d")
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
         
-        records = db_manager.get_generation_by_date_range(start_dt, end_dt)
+        records = DB_MANAGER.get_generation_by_date_range(start_dt, end_dt)
         
         generation_data = {
             "start_date": start_date,
@@ -189,8 +191,8 @@ def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
         Dict[str, Any]: Summary of recent energy data
     """
     try:
-        usage_records = db_manager.get_recent_usage(hours)
-        generation_records = db_manager.get_recent_generation(hours)
+        usage_records = DB_MANAGER.get_recent_usage(hours)
+        generation_records = DB_MANAGER.get_recent_generation(hours)
         
         summary = {
             "time_period_hours": hours,
@@ -249,7 +251,8 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
         if not os.path.exists(os.path.join(persist_directory, "chroma.sqlite3")):
             # Load documents
             documents = []
-            for doc_path in ["data/documents/tip_device_best_practices.txt", "data/documents/tip_energy_savings.txt"]:
+            document_paths = Path("data/documents/").glob("*.txt")
+            for doc_path in document_paths:
                 if os.path.exists(doc_path):
                     loader = TextLoader(doc_path)
                     docs = loader.load()
@@ -333,5 +336,5 @@ TOOL_KIT = [
     query_solar_generation,
     get_recent_energy_summary,
     search_energy_tips,
-    calculate_energy_savings
+    calculate_energy_savings,
 ]
