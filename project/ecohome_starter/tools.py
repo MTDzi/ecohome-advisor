@@ -298,9 +298,10 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
     except Exception as e:
         return {"error": f"Failed to search energy tips: {str(e)}"}
 
+
 @tool
 def calculate_energy_savings(device_type: str, current_usage_kwh: float, 
-                           optimized_usage_kwh: float, price_per_kwh: float = 0.12) -> Dict[str, Any]:
+                             optimized_usage_kwh: float, price_per_kwh: float = 0.12) -> Dict[str, Any]:
     """
     Calculate potential energy savings from optimization.
     
@@ -329,6 +330,7 @@ def calculate_energy_savings(device_type: str, current_usage_kwh: float,
     }
 
 
+# TODO[MD]: Not sure why this is here for
 TOOL_KIT = [
     get_weather_forecast,
     get_electricity_prices,
