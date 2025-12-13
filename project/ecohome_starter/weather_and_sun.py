@@ -218,17 +218,16 @@ def weather_hour_by_hour_gen(
     :return: Description
     :rtype: WeatherRecord
     """
-    current_hour = 0
+    current_hour = start_date.hour
     current_weather = RandomWeatherGenerator.get_random_weather()
     current_temperature_c = get_temperature_c_for_weather(current_weather, current_hour)
-    current_humidity = get_humidity_for_weather(current_weather, None)
+    current_humidity = get_humidity_for_weather(current_weather, current_humidity=None)
     current_solar_info = get_solar_irradiance_and_kwh_generation(current_weather, current_temperature_c, current_hour)
     current_wind_speed = get_wind_speed(current_weather, current_hour)
     
     for day in range(num_days):
-        current_date = start_date + timedelta(days=day)
         for hour in range(24):
-            timestamp = current_date.replace(hour=hour, minute=0, second=0, microsecond=0)
+            timestamp = (start_date + timedelta(days=day, hours=hour)).replace(minute=0, second=0, microsecond=0)
             
             yield WeatherRecord(
                 date_time=timestamp,

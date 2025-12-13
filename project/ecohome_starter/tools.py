@@ -11,14 +11,15 @@ from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 from models.energy import DatabaseManager
+from weather_and_sun import weather_hour_by_hour_gen
 
 
 # Initialize database manager
 DB_MANAGER = DatabaseManager()
 
 
-# TODO: Implement get_weather_forecast tool
 @tool
 def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
     """
@@ -42,6 +43,7 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
             },
             "hourly": [
                 {
+                    "day": ...,
                     "hour": ..., # for hour in range(24)
                     "temperature_c": ...,
                     "condition": ...,
@@ -52,9 +54,38 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
             ]
         }
     """
-    # Mock weather API or call OpenWeatherMap or similar
+    # Mocking weather API
+    now = datetime.now()
+    weather_gen = weather_hour_by_hour_gen(now, days)
+    current_weather = next(weather_gen)
+    forecast = {
+        'location': location,
+        'forecast_days': days,
+        'current': {
+            'temperature_c': current_weather.temperature_c,
+            'hour': current_weather.date_time.hour,
+            'condition': current_weather.weather_name,
+            'humidity': current_weather.humidity,
+            'wind_speed': current_weather.wind_speed,
+        }
+    }
     
-    return 
+    hourly = []
+    for weather_record in weather_gen:
+        time_delta = (weather_record.date_time - current_weather.date_time)
+        hourly.append({
+            'day': time_delta.days,
+            'hour': time_delta.seconds // 3600,
+            'temperature_c': weather_record.temperature_c,
+            'condition': weather_record.weather_name,
+            'solar_irradiance': weather_record.irradiance,
+            'humidity': weather_record.humidity,
+            'wind_speed': weather_record.wind_speed,
+        })
+    
+    forecast['hourly'] = hourly
+    
+    return forecast
 
 # TODO: Implement get_electricity_prices tool
 @tool
@@ -340,3 +371,9 @@ TOOL_KIT = [
     search_energy_tips,
     calculate_energy_savings,
 ]
+
+
+
+if __name__ == '__main__':
+    forecast = get_weather_forecast.func('LA', 5)
+    print('siema')
