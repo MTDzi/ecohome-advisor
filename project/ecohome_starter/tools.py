@@ -7,6 +7,7 @@ from typing import Dict, Any
 from pathlib import Path
 
 from langchain_core.tools import tool
+from langchain_core.runnables import RunnableConfig
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.document_loaders import TextLoader
@@ -87,9 +88,9 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
     
     return forecast
 
-# TODO: Implement get_electricity_prices tool
+
 @tool
-def get_electricity_prices(date: str = None) -> Dict[str, Any]:
+def get_electricity_prices(date: str = None, config: RunnableConfig | None = None) -> Dict[str, Any]:
     """
     Get electricity prices for a specific date or current day.
     
@@ -115,15 +116,35 @@ def get_electricity_prices(date: str = None) -> Dict[str, Any]:
         }
     """
     if date is None:
-        date = datetime.now().strftime("%Y-%m-%d")
+        date = datetime.now()
+    date_as_datetime = date.strftime("%Y-%m-%d")
     
     # Mock electricity pricing - in real implementation, this would call a pricing API
     # Use a base price per kWh    
     # Then generate hourly rates with peak/off-peak pricing
     # Peak normally between 6 and 22...
     # demand_charge should be 0 if off-peak
+    electricity_pricing_config = config.get("configurable", {}).get('electricity_pricing', {})
+    peak_hours = electricity_pricing_config.get("peak_hours", [])
+    base_rate = electricity_pricing_config.get('base_rate', 0.10)
+    peak_rate = electricity_pricing_config.get('peak_rate', 0.15)
+    
+    return {
+        'date': date_as_datetime,
+        'pricing_type': 'time_of_use',
+        'currency': 'USD',
+        'unit': 'per_kWh',
+        'hourly_rates': [
+            {
+                'hour': hour,
+                'rate': peak_rate if hour in peak_hours else base_rate,
+                'period': 'one_hour',
+                'demand_charge': int(hour in peak_hours),
+            }
+            for hour in range(24)
+        ]
+    }
 
-    return 
 
 @tool
 def query_energy_usage(start_date: str, end_date: str, device_type: str = None) -> Dict[str, Any]:

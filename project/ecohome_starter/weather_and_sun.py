@@ -1,3 +1,7 @@
+"""
+Functions and data structures for generating past and future weather along with info
+about energy being generated from PH panels.
+"""
 import random
 from collections import namedtuple
 from dataclasses import dataclass
