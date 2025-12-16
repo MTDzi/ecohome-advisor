@@ -1,33 +1,53 @@
 import os
+from typing import Any
+
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, ToolCall, AIMessage, HumanMessage, ToolMessage
+from langchain_core.documents import Document
 from langgraph.prebuilt import create_react_agent
+from langgraph.graph.message import MessagesState
+from langgraph.checkpoint.memory import MemorySaver
+
 from tools import TOOL_KIT
 
 load_dotenv()
 
 
+class AgentState(MessagesState):
+    is_last_step: bool
+    question: str
+    documents: list[Document]
+    db_search_required: bool = False
+    weather_forecast_required: bool = False
+    electricity_prices: dict[str, Any]
+    answer: str
+
+
 class Agent:
-    def __init__(self, instructions:str, model:str="gpt-4o-mini"):
+    def __init__(self, instructions: str, model: str = "gpt-4o-mini", temperature: float = 0.0):
 
         # Initialize the LLM
         llm = ChatOpenAI(
             model=model,
-            temperature=0.0,
+            temperature=temperature,
             base_url="https://openai.vocareum.com/v1",
             api_key=os.getenv("VOCAREUM_API_KEY")
         )
 
         # Create the Energy Advisor agent
         self.graph = create_react_agent(
-            name="energy_advisor",
-            prompt=SystemMessage(content=instructions),
+            messages_modifier=SystemMessage(content=instructions),
             model=llm,
             tools=TOOL_KIT,
+            # state_schema=AgentState,
+            # interrupt_before=['tools'],  # NOTE: For debugging
+            checkpointer=MemorySaver(),
         )
+        self.graph.get_graph().draw_png('dupa.png')
+        print('siema')
 
-    def invoke(self, question: str, context:str=None) -> str:
+    def invoke(self, question: str, context: str = None, thread_id: str = "default_thread") -> str:
         """
         Ask the Energy Advisor a question about energy optimization.
         
@@ -45,6 +65,19 @@ class Agent:
             messages.append(
                 ("system", context)
             )
+            
+        config = {
+            'recursion_limit': 100,
+            'configurable':
+            {
+                'thread_id': thread_id,
+                'electricity_pricing': {
+                    'peak_hours': list(range(6, 19)),
+                    'base_rate': 0.10,
+                    'peak_rate': 0.15,
+                }
+            }
+        }
 
         messages.append(
             ("user", question)
@@ -54,7 +87,8 @@ class Agent:
         response = self.graph.invoke(
             input= {
                 "messages": messages
-            }
+            },
+            config=config,
         )
         
         return response
@@ -62,3 +96,4 @@ class Agent:
     def get_agent_tools(self):
         """Get list of available tools for the Energy Advisor"""
         return [t.name for t in TOOL_KIT]
+

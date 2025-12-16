@@ -124,6 +124,7 @@ def get_electricity_prices(date: str = None, config: RunnableConfig | None = Non
     # Then generate hourly rates with peak/off-peak pricing
     # Peak normally between 6 and 22...
     # demand_charge should be 0 if off-peak
+    config = config or {}
     electricity_pricing_config = config.get("configurable", {}).get('electricity_pricing', {})
     peak_hours = electricity_pricing_config.get("peak_hours", [])
     base_rate = electricity_pricing_config.get('base_rate', 0.10)
@@ -382,7 +383,6 @@ def calculate_energy_savings(device_type: str, current_usage_kwh: float,
     }
 
 
-# TODO[MD]: Not sure why this is here for
 TOOL_KIT = [
     get_weather_forecast,
     get_electricity_prices,
@@ -397,4 +397,7 @@ TOOL_KIT = [
 
 if __name__ == '__main__':
     forecast = get_weather_forecast.func('LA', 5)
-    print('siema')
+    print(forecast)
+    
+    prices = get_electricity_prices.func()
+    print(prices)
