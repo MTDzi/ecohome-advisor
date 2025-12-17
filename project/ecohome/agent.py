@@ -3,7 +3,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, ToolCall, AIMessage, HumanMessage, ToolMessage
+from langchain_core.messages import SystemMessage
 from langchain_core.documents import Document
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph.message import MessagesState
@@ -12,16 +12,6 @@ from langgraph.checkpoint.memory import MemorySaver
 from tools import TOOL_KIT
 
 load_dotenv()
-
-
-class AgentState(MessagesState):
-    is_last_step: bool
-    question: str
-    documents: list[Document]
-    db_search_required: bool = False
-    weather_forecast_required: bool = False
-    electricity_prices: dict[str, Any]
-    answer: str
 
 
 class Agent:
@@ -40,12 +30,10 @@ class Agent:
             messages_modifier=SystemMessage(content=instructions),
             model=llm,
             tools=TOOL_KIT,
-            # state_schema=AgentState,
             # interrupt_before=['tools'],  # NOTE: For debugging
             checkpointer=MemorySaver(),
         )
-        self.graph.get_graph().draw_png('dupa.png')
-        print('siema')
+        self.graph.get_graph().draw_png('default_react_agent_graph.png')
 
     def invoke(self, question: str, context: str = None, thread_id: str = "default_thread") -> str:
         """

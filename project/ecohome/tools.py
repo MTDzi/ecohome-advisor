@@ -192,6 +192,7 @@ def query_energy_usage(start_date: str, end_date: str, device_type: str = None) 
     except Exception as e:
         return {"error": f"Failed to query energy usage: {str(e)}"}
 
+
 @tool
 def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
     """
@@ -231,6 +232,7 @@ def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
         return generation_data
     except Exception as e:
         return {"error": f"Failed to query solar generation: {str(e)}"}
+
 
 @tool
 def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
@@ -281,6 +283,7 @@ def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
         return summary
     except Exception as e:
         return {"error": f"Failed to get recent energy summary: {str(e)}"}
+
 
 @tool
 def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:

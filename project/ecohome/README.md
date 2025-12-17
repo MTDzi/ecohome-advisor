@@ -49,8 +49,8 @@ pip install -r requirements.txt
 Create a `.env` file with your API keys:
 
 ```bash
-VOCAREUM_API_KEY=your_vocareum_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=YOUR_KEY_HERE
+OPENAI_API_BASE=https://openai.vocareum.com/v1
 ```
 
 ### 3. Run the Notebooks
@@ -60,7 +60,6 @@ Execute the notebooks in order:
 1. **01_db_setup.ipynb** - Set up the database and populate with sample data
 2. **02_rag_setup.ipynb** - Configure the RAG pipeline for energy tips
 3. **03_agent_evaluation.ipynb** - Test and evaluate the agent
-4. **04_agent_run.ipynb** - Run the agent with example scenarios
 
 ## Agent Capabilities
 
@@ -97,53 +96,3 @@ The Energy Advisor can answer questions like:
 - `weather_condition`: Weather during generation
 - `temperature_c`: Temperature at time of generation
 - `solar_irradiance`: Solar irradiance level
-
-## Learning Objectives
-
-This project helps students learn:
-
-1. **Database Design**: Creating schemas for energy management systems
-2. **API Integration**: Working with external weather and pricing APIs
-3. **RAG Implementation**: Building retrieval-augmented generation pipelines
-4. **Agent Development**: Creating intelligent agents with tool usage
-5. **Evaluation Methods**: Testing and measuring agent performance
-6. **Energy Optimization**: Understanding smart home energy management
-
-## Key Technologies
-
-- **LangChain**: Agent framework and tool integration
-- **LangGraph**: Agent orchestration and workflow
-- **ChromaDB**: Vector database for document retrieval
-- **SQLAlchemy**: Database ORM and management
-- **OpenAI**: LLM and embeddings
-- **SQLite**: Local database storage
-
-## Evaluation Criteria
-
-The agent is evaluated on:
-
-- **Accuracy**: Correct information and calculations
-- **Relevance**: Responses address the user's question
-- **Completeness**: Comprehensive answers with actionable advice
-- **Tool Usage**: Appropriate use of available tools
-- **Reasoning**: Clear explanation of recommendations
-
-## Getting Started
-
-1. Clone this repository
-2. Install the required dependencies
-3. Set up your environment variables
-4. Run the notebooks in sequence
-5. Test the agent with your own questions
-
-## Contributing
-
-This is a learning project. Feel free to:
-- Add new tools and capabilities
-- Improve the evaluation metrics
-- Enhance the RAG pipeline
-- Add more sophisticated optimization algorithms
-
-## License
-
-This project is for educational purposes as part of the Udacity Course 2 curriculum.
