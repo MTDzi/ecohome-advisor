@@ -2,21 +2,25 @@
 Tools for EcoHome Energy Advisor Agent
 """
 import os
-import json
-import random
 from datetime import datetime, timedelta
 from typing import Dict, Any
+from pathlib import Path
+
 from langchain_core.tools import tool
+from langchain_core.runnables import RunnableConfig
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 from models.energy import DatabaseManager
+from weather_and_sun import weather_hour_by_hour_gen
+
 
 # Initialize database manager
-db_manager = DatabaseManager()
+DB_MANAGER = DatabaseManager()
 
-# TODO: Implement get_weather_forecast tool
+
 @tool
 def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
     """
@@ -40,6 +44,7 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
             },
             "hourly": [
                 {
+                    "day": ...,
                     "hour": ..., # for hour in range(24)
                     "temperature_c": ...,
                     "condition": ...,
@@ -50,13 +55,42 @@ def get_weather_forecast(location: str, days: int = 3) -> Dict[str, Any]:
             ]
         }
     """
-    # Mock weather API or call OpenWeatherMap or similar
+    # Mocking weather API
+    now = datetime.now()
+    weather_gen = weather_hour_by_hour_gen(now, days)
+    current_weather = next(weather_gen)
+    forecast = {
+        'location': location,
+        'forecast_days': days,
+        'current': {
+            'temperature_c': current_weather.temperature_c,
+            'hour': current_weather.date_time.hour,
+            'condition': current_weather.weather_name,
+            'humidity': current_weather.humidity,
+            'wind_speed': current_weather.wind_speed,
+        }
+    }
     
-    return 
+    hourly = []
+    for weather_record in weather_gen:
+        time_delta = (weather_record.date_time - current_weather.date_time)
+        hourly.append({
+            'day': time_delta.days,
+            'hour': time_delta.seconds // 3600,
+            'temperature_c': weather_record.temperature_c,
+            'condition': weather_record.weather_name,
+            'solar_irradiance': weather_record.irradiance,
+            'humidity': weather_record.humidity,
+            'wind_speed': weather_record.wind_speed,
+        })
+    
+    forecast['hourly'] = hourly
+    
+    return forecast
 
-# TODO: Implement get_electricity_prices tool
+
 @tool
-def get_electricity_prices(date: str = None) -> Dict[str, Any]:
+def get_electricity_prices(date: str = None, config: RunnableConfig | None = None) -> Dict[str, Any]:
     """
     Get electricity prices for a specific date or current day.
     
@@ -82,15 +116,36 @@ def get_electricity_prices(date: str = None) -> Dict[str, Any]:
         }
     """
     if date is None:
-        date = datetime.now().strftime("%Y-%m-%d")
+        date = datetime.now()
+    date_as_datetime = date.strftime("%Y-%m-%d")
     
     # Mock electricity pricing - in real implementation, this would call a pricing API
     # Use a base price per kWh    
     # Then generate hourly rates with peak/off-peak pricing
     # Peak normally between 6 and 22...
     # demand_charge should be 0 if off-peak
+    config = config or {}
+    electricity_pricing_config = config.get("configurable", {}).get('electricity_pricing', {})
+    peak_hours = electricity_pricing_config.get("peak_hours", [])
+    base_rate = electricity_pricing_config.get('base_rate', 0.10)
+    peak_rate = electricity_pricing_config.get('peak_rate', 0.15)
+    
+    return {
+        'date': date_as_datetime,
+        'pricing_type': 'time_of_use',
+        'currency': 'USD',
+        'unit': 'per_kWh',
+        'hourly_rates': [
+            {
+                'hour': hour,
+                'rate': peak_rate if hour in peak_hours else base_rate,
+                'period': 'one_hour',
+                'demand_charge': int(hour in peak_hours),
+            }
+            for hour in range(24)
+        ]
+    }
 
-    return 
 
 @tool
 def query_energy_usage(start_date: str, end_date: str, device_type: str = None) -> Dict[str, Any]:
@@ -109,7 +164,7 @@ def query_energy_usage(start_date: str, end_date: str, device_type: str = None) 
         start_dt = datetime.strptime(start_date, "%Y-%m-%d")
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
         
-        records = db_manager.get_usage_by_date_range(start_dt, end_dt)
+        records = DB_MANAGER.get_usage_by_date_range(start_dt, end_dt)
         
         if device_type:
             records = [r for r in records if r.device_type == device_type]
@@ -137,6 +192,7 @@ def query_energy_usage(start_date: str, end_date: str, device_type: str = None) 
     except Exception as e:
         return {"error": f"Failed to query energy usage: {str(e)}"}
 
+
 @tool
 def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
     """
@@ -153,7 +209,7 @@ def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
         start_dt = datetime.strptime(start_date, "%Y-%m-%d")
         end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
         
-        records = db_manager.get_generation_by_date_range(start_dt, end_dt)
+        records = DB_MANAGER.get_generation_by_date_range(start_dt, end_dt)
         
         generation_data = {
             "start_date": start_date,
@@ -177,6 +233,7 @@ def query_solar_generation(start_date: str, end_date: str) -> Dict[str, Any]:
     except Exception as e:
         return {"error": f"Failed to query solar generation: {str(e)}"}
 
+
 @tool
 def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
     """
@@ -189,8 +246,8 @@ def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
         Dict[str, Any]: Summary of recent energy data
     """
     try:
-        usage_records = db_manager.get_recent_usage(hours)
-        generation_records = db_manager.get_recent_generation(hours)
+        usage_records = DB_MANAGER.get_recent_usage(hours)
+        generation_records = DB_MANAGER.get_recent_generation(hours)
         
         summary = {
             "time_period_hours": hours,
@@ -227,6 +284,7 @@ def get_recent_energy_summary(hours: int = 24) -> Dict[str, Any]:
     except Exception as e:
         return {"error": f"Failed to get recent energy summary: {str(e)}"}
 
+
 @tool
 def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
     """
@@ -249,7 +307,8 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
         if not os.path.exists(os.path.join(persist_directory, "chroma.sqlite3")):
             # Load documents
             documents = []
-            for doc_path in ["data/documents/tip_device_best_practices.txt", "data/documents/tip_energy_savings.txt"]:
+            document_paths = Path("data/documents/").glob("*.txt")
+            for doc_path in document_paths:
                 if os.path.exists(doc_path):
                     loader = TextLoader(doc_path)
                     docs = loader.load()
@@ -295,9 +354,10 @@ def search_energy_tips(query: str, max_results: int = 5) -> Dict[str, Any]:
     except Exception as e:
         return {"error": f"Failed to search energy tips: {str(e)}"}
 
+
 @tool
 def calculate_energy_savings(device_type: str, current_usage_kwh: float, 
-                           optimized_usage_kwh: float, price_per_kwh: float = 0.12) -> Dict[str, Any]:
+                             optimized_usage_kwh: float, price_per_kwh: float = 0.12) -> Dict[str, Any]:
     """
     Calculate potential energy savings from optimization.
     
@@ -333,5 +393,14 @@ TOOL_KIT = [
     query_solar_generation,
     get_recent_energy_summary,
     search_energy_tips,
-    calculate_energy_savings
+    calculate_energy_savings,
 ]
+
+
+
+if __name__ == '__main__':
+    forecast = get_weather_forecast.func('LA', 5)
+    print(forecast)
+    
+    prices = get_electricity_prices.func()
+    print(prices)

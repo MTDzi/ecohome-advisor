@@ -2,13 +2,12 @@
 Energy data models for EcoHome Energy Advisor
 """
 from datetime import datetime
-from typing import Optional
 from sqlalchemy import Column, Integer, Float, DateTime, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
 
 Base = declarative_base()
+
 
 class EnergyUsage(Base):
     """Model for energy consumption data"""
@@ -24,6 +23,7 @@ class EnergyUsage(Base):
     def __repr__(self):
         return f"<EnergyUsage(timestamp={self.timestamp}, consumption={self.consumption_kwh}kWh, device={self.device_name})>"
 
+
 class SolarGeneration(Base):
     """Model for solar generation data"""
     __tablename__ = "solar_generation"
@@ -37,6 +37,7 @@ class SolarGeneration(Base):
     
     def __repr__(self):
         return f"<SolarGeneration(timestamp={self.timestamp}, generation={self.generation_kwh}kWh, weather={self.weather_condition})>"
+
 
 class DatabaseManager:
     """Database manager for EcoHome energy data"""

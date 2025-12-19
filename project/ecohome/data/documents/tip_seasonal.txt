@@ -1,0 +1,83 @@
+Seasonal Energy Management Strategies
+
+Effective energy management requires adjusting consumption habits and home systems to align with the primary thermal challenge of the season, whether that is rejecting external heat (Summer) or retaining internal heat (Winter).
+
+1. Summer (Cooling and Heat Rejection)
+
+The primary goal in summer is to minimize heat gain from both the outside environment and internal appliance use, thereby reducing the workload on the air conditioning (AC) system.
+
+Strategy: Minimize Solar Gain
+
+Actionable Tip: Shade Windows. Close blinds, curtains, or automated shades on south and west-facing windows during peak sun hours (10 AM - 4 PM). Consider planting deciduous trees or installing awnings.
+
+Energy Impact: Reduces AC workload by blocking direct sunlight heat.
+
+Strategy: HVAC Management
+
+Actionable Tip: Raise Thermostat. Set the AC thermostat to 78°F (26°C) when home. Increase the setting 7-10°F when away or asleep.
+
+Energy Impact: Significantly lowers energy consumption per degree adjustment.
+
+Strategy: Supplemental Cooling
+
+Actionable Tip: Use Ceiling Fans. Run ceiling fans to circulate air, allowing you to raise the thermostat setting by up to 4°F without feeling warmer. Ensure fans spin counter-clockwise.
+
+Energy Impact: Reduces runtime and wear on the main AC unit.
+
+Strategy: Manage Appliance Heat
+
+Actionable Tip: Schedule Heat-Generating Loads. Run ovens, dishwashers, and washing machines in the early morning or late evening.
+
+Energy Impact: Prevents internal heat from competing with the AC system.
+
+Strategy: Outdoor Unit Maintenance
+
+Actionable Tip: Clean Condenser. Ensure the outdoor AC unit (condenser) is clear of plants, dirt, and debris to allow heat to efficiently dissipate into the air.
+
+Energy Impact: Ensures peak operational efficiency of the compressor.
+
+2. Winter (Heating and Heat Retention)
+
+The primary goal in winter is to prevent the escape of conditioned air and maximize passive solar heating.
+
+Strategy: Maximize Passive Heat
+
+Actionable Tip: Use Sunlight Strategically. Open blinds and curtains on south-facing windows during sunny days to allow solar energy to warm interior spaces.
+
+Energy Impact: Reduces the need for furnace cycling during the day.
+
+Strategy: Minimize Heat Loss
+
+Actionable Tip: Close Blinds at Night. Close all blinds and curtains at dusk to create an insulating layer against cold windows.
+
+Energy Impact: Reduces radiant heat loss through glass.
+
+Strategy: HVAC Management
+
+Actionable Tip: Set Back Thermostat. Set the heat thermostat to 68°F (20°C) when home. Drop the temperature 7-10°F when asleep or away.
+
+Energy Impact: Significant savings, as heating is often the largest winter expense.
+
+Strategy: Air Sealing Focus
+
+Actionable Tip: Check for Drafts. Re-apply weatherstripping and caulk around windows, doors, and utility penetrations. Use door sweeps.
+
+Energy Impact: Stops cold air infiltration (air leaks) which accounts for a large percentage of heat loss.
+
+Strategy: Zoned Heating
+
+Actionable Tip: Close Vents Strategically. Close vents and doors to unused rooms (like guest bedrooms) to direct warm air only where it is needed.
+
+Energy Impact: Focuses heating power on living areas.
+
+3. Transition Season and Year-Round Checks
+
+Focus on essential maintenance that maximizes efficiency regardless of the temperature extreme.
+
+HVAC Tune-Ups: Schedule a professional service for the furnace in the fall and the AC unit in the spring.
+
+Filter Changes: Continue to change air filters monthly, as the system runs frequently in both seasons.
+
+Insulation Check: Verify that attic and wall insulation has not settled or been damaged, as insulation is crucial for both heating retention and cooling retention.
+
+Water Heater Management: Adjust the water heater temperature to 120°F year-round for optimal efficiency. Consider using a smart timer to ensure the heater runs outside of your utility's most expensive peak hours.
